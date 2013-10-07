@@ -1,0 +1,37 @@
+{
+    "name": "deferredTimeoutUtilities",
+    "title": "deferredTimeoutUtilities",
+    "description": "deferredTimeoutUtilities is jQuery.Deferred Utilities.base setTimeout,setInterval,",
+    "keywords": [
+        "Deferred",
+        "each",
+        "setTimeout",
+        "setInterval",
+        "requestAnimationFrame"
+    ],
+    "version": "0.5.0",
+    "author": {
+        "name": "juner",
+        "url": "https://github.com/juner"
+    },
+    "maintainers": [
+        {
+            "name": "juner",
+            "email": "juner@juner.net",
+            "url": "http://blogger.juner.net"
+        }
+    ],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://opensource.org/licenses/MIT"
+        }
+    ],
+    "bugs": "https://github.com/juner/jQueryDeferredTimeoutUtilities/issues",
+    "homepage": "https://github.com/juner/jQueryDeferredTimeoutUtilities",
+    "docs": "https://github.com/juner/jQueryDeferredTimeoutUtilities",
+    "download": "https://github.com/juner/jQueryDeferredTimeoutUtilities/archive/master.zip",
+    "dependencies": {
+        "jquery": ">=1.8"
+    }
+}
