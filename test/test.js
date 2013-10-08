@@ -100,17 +100,92 @@
         ok($.isFunction($.dFrameInterval), "$.dFrameInterval は関数として定義されている" );
         ok($.isFunction($.fn.dFrameInterval),"$.fn.dFrameInterval は関数として定義されている");
     });
-    $Q.test("dEach のテスト",function(){
+    $Q.test("dEach のテスト",7,function(){
         ok($.isFunction($.dEach), "$.dEach は関数として定義されている" );
         ok($.isFunction($.fn.dEach),"$.fn.dEach は関数として定義されている");
-        stop();
-        var sum=0;
-        $.dEach([1,2,3,4],10,function(k,v){
-            sum+=v;
+        var sum = 0;
+        var arry = [1,2,3,4];
+        $.Deferred().resolve()
+        .then(function(){
+            stop();
+            return $.dEach(arry,10,function(k,v){
+                sum+=v;
+            });
         })
         .done(function(){
             start();
             ok(sum==10,"対象配列を指定時間間隔でチェックする");
+        })
+        .then(function(){
+            var $div = $("<div/>").prependTo("body");
+            for(var i =0,imax=arry.length;i<imax;i++){
+                $div.append($("<span/>").text(arry[i]));
+            }
+            sum = 0;
+            stop();
+            return $div.find(">*").dEach(10,function(){
+                sum+=Number($(this).text());
+            })
+            .done(function(){
+                $div.remove();
+            });
+        })
+        .done(function(){
+            start();
+            ok(sum==10,"$.fn.dEachでも$.dEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。")
+        })
+        .then(function(){
+            stop();
+            var d= $.dEach(arry,100,function(k,v){
+                sum+=v;
+            }),
+                clear = d.clear;
+            $.dTimeout(10)
+            .done(function(){
+                clear();
+            });
+            return d;
+        })
+        .always(function(){
+            start();
+        })
+        .done(function(){
+            ok(false,"dEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+        })
+        .fail(function(){
+            ok(true,"dEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+        })
+        .then(undefined,function(){ return $.Deferred().resolve(); })
+        .then(function(){
+            stop();
+            return $.dEach(arry,10,function(k,v){
+                if(2<k){
+                    return false;
+                }
+            })
+        })
+        .always(function(){ start(); })
+        .done(function(){
+            ok(false,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
+        })
+        .fail(function(){
+            ok(true,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
+        })
+        .then(undefined,function(){ return $.Deferred().resolve(); })
+        .then(function(){
+            stop();
+            return $.dEach(arry,10,function(k,v){
+                if(2<k){
+                    return $.Deferred().reject().promise();
+                }
+            })
+        })
+        .always(function(){ start(); })
+        .done(function(){
+            ok(false,"dEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+        })
+        .fail(function(){
+            ok(true,"dEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
         });
     })
 })(jQuery,QUnit);
