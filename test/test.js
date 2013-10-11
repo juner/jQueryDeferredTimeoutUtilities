@@ -1,114 +1,123 @@
 ;(function($,$Q,undefined){
     "use strict";
     /**
-     * $.dTimeout,$.fn.dTimeout 周りのテスト5件
+     * $.deferredTimeout インターフェースについての評価
      */
-    $Q.test( "dTimeout のテスト",5, function() {
-        var $test=$([]);
-        ok($.isFunction($.dTimeout), "$.dTimeout は関数として定義されている" );
-        ok($.isFunction($.fn.dTimeout),"$.fn.dTimeout は関数として定義されている");
-        stop();
-        $.dTimeout(10)
-        .done(function(){
-            start();
-            ok(true,"$.dTimout で遅延動作する");
-        })
-        .then(function(){
-            $test = $("<div/>").prependTo("body");
-            stop();
-            return $test.dTimeout(10);
-        })
-        .done(function(){
-            start();
-            ok($(this).is($test),"dTimeout された際の要素はdTimeoutした際の元の要素であること");
-            $test.remove();
-        })
-        .then(function(){
-            var t = $.dTimeout(300);
-            $.dTimeout(10)
-            .done(function(){
-                t.clear();
+    var deferredTimeoutInterfaceTest = function(fnName){
+        $Q.test("deferredTimeoutインターフェースに於ける "+fnName+"のテスト",5,function(){
+           var $test=$([]);
+           ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
+           ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
+           stop();
+           $[fnName](10)
+           .done(function(){
+                start();
+                ok(true,"$."+fnName+" で遅延動作する");
             })
-            stop();
-            return t;
-        })
-        .always(function(){
-            start();
-        })
-        .done(function(){
-            ok(false,"dTimeoutのDefferedにあるclearメソッドによりrejectが可能であること");
-        })
-        .fail(function(){
-            ok(true,"dTimeoutのDefferedにあるclearメソッドによりrejectが可能であること");
-        })
-    });
-    $Q.test("dInterval のテスト",5,function(){
-        ok($.isFunction($.dInterval), "$.dInterval は関数として定義されている" );
-        ok($.isFunction($.fn.dInterval),"$.fn.dInterval は関数として定義されている");
-        stop();
-        $.Deferred(function(d){
-            var c = $.dInterval(10),
-                clear = c.clear,
-                i = 0;
-            c.progress(function(){
-                if(3<++i) clear();
+            .then(function(){
+                $test = $("<div/>").prependTo("body");
+                stop();
+                return $test[fnName](10);
+            })
+            .done(function(){
+                start();
+                ok($(this).is($test),fnName+" された際の要素は"+fnName+"した際の元の要素であること");
+                $test.remove();
+                $test = $([]);
+            })
+            .then(function(){
+                var t = $[fnName](300);
+                setTimeout(function(){
+                    t.clear();
+                },10);
+                stop();
+                return t;
+            })
+            .always(function(){
+                start();
+            })
+            .done(function(){
+                ok(false,fnName+"のPromiseにあるclearメソッドによりrejectが可能であること");
             })
             .fail(function(){
-                ok(true,"$.dInterval は戻り値のPromiseにあるclearメソッドのみを行う事でループから脱出出来る。");
-                d.resolve();
+                ok(true,fnName+"のPromiseにあるclearメソッドによりrejectが可能であること");
             });
-            $.dTimeout(100)
-            .done(function(){ clear(); d.resolve(); });
-            d.always(function(){
-                start();
-                ok(3<i,"$.dInterval は指定時間毎にnotifyする。");
-            })
-            return d.promise();
-        })
-        .then(function(){
-            var d = $.Deferred(),
-                $div = $("<div/>").appendTo("body"),
-                c = $div.dInterval(10),
-                clear = c.clear,
-                i = 0;
-            stop();
-            c.progress(function(){
-                if(3<(++i)) clear();
-            })
-            .fail(function(){ d.resolveWith(this); });
-            $.dTimeout(100)
-            .done(function(){ clear(); d.resolve(); })
-            d.always(function(){
-                start();
-                ok($(this).is($div),"$.fn.dIntervalされた際の要素はdIntervalした要素を元にすること")
-            })
         });
-    });
-    $Q.test("dTimeoutInterval のテスト",function(){
-        ok($.isFunction($.dTimeoutInterval), "$.dTimeoutInterval は関数として定義されている" );
-        ok($.isFunction($.fn.dTimeoutInterval),"$.fn.dTimeoutInterval は関数として定義されている");
-    });
-    $Q.test("dIntervalTimeout のテスト",function(){
-        ok($.isFunction($.dIntervalTimeout), "$.dIntervalTimeout は関数として定義されている" );
-        ok($.isFunction($.fn.dIntervalTimeout),"$.fn.dIntervalTimeout は関数として定義されている");
-    });
-    $Q.test("dFrameTimeout のテスト",function(){
-        ok($.isFunction($.dFrameTimeout), "$.dFrameTimeout は関数として定義されている" );
-        ok($.isFunction($.fn.dFrameTimeout),"$.fn.dFrameTimeout は関数として定義されている");
-    });
-    $Q.test("dFrameInterval のテスト",function(){
-        ok($.isFunction($.dFrameInterval), "$.dFrameInterval は関数として定義されている" );
-        ok($.isFunction($.fn.dFrameInterval),"$.fn.dFrameInterval は関数として定義されている");
-    });
-    $Q.test("dEach のテスト",7,function(){
-        ok($.isFunction($.dEach), "$.dEach は関数として定義されている" );
-        ok($.isFunction($.fn.dEach),"$.fn.dEach は関数として定義されている");
+    };
+    
+    var deferredIntervalInterfaceTest = function(fnName){
+            $Q.test("deferredIntervalインターフェースに於ける "+fnName+" のテスト",5,function(){
+            ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
+            ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
+            stop();
+            $.Deferred(function(d){
+                var c = $[fnName](10),
+                    clear = c.clear,
+                    i = 0;
+                c.progress(function(){
+                    if(3<++i) clear();
+                })
+                .fail(function(){
+                    ok(true,"$."+fnName+" は戻り値のPromiseにあるclearメソッドのみを行う事でループから脱出出来る。");
+                    d.resolve();
+                });
+                $.deferredTimeout(100)
+                .done(function(){ clear(); d.resolve(); });
+                d.always(function(){
+                    start();
+                    ok(3<i,"$."+fnName+" は指定時間毎にnotifyする。");
+                })
+                return d.promise();
+            })
+            .then(function(){
+                var d = $.Deferred(),
+                    $div = $("<div/>").appendTo("body"),
+                    c = $div[fnName](10),
+                    clear = c.clear,
+                    i = 0;
+                stop();
+                c.progress(function(){
+                    if(3<(++i)) clear();
+                })
+                .fail(function(){ d.resolveWith(this); });
+                $.deferredTimeout(100)
+                .done(function(){ clear(); d.resolve(); })
+                d.always(function(){
+                    start();
+                    ok($(this).is($div),"$.fn"+fnName+"された際の要素は"+fnName+"した要素を元にすること");
+                    $div.remove();
+                    $div=$([]);
+                });
+            });
+        });
+    };
+    //deferredTimeoutインターフェースを元にした deferredTimeout のテスト
+    deferredTimeoutInterfaceTest("deferredTimeout");
+    
+    //deferredIntervalインターフェースを元にした deferredInterval のテスト
+    deferredIntervalInterfaceTest("deferredInterval");
+    
+    //deferredIntervalインターフェースを元にした deferredTimeoutInterval のテスト
+    deferredIntervalInterfaceTest("deferredTimeoutInterval");
+    
+    //deferredTimeoutインターフェースを元にした deferredIntervalTimeout のテスト
+    deferredTimeoutInterfaceTest("deferredIntervalTimeout");
+    
+    //deferredTimeoutインターフェースを元にした deferredFrameTimeout のテスト
+    deferredTimeoutInterfaceTest("deferredFrameTimeout");
+    
+    //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
+    deferredIntervalInterfaceTest("deferredFrameInterval");
+    
+    $Q.test("deferredEach のテスト",function(){
+        ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
+        ok($.isFunction($.fn.deferredEach),"$.fn.deferredEach は関数として定義されている");
         var sum = 0;
         var arry = [1,2,3,4];
         $.Deferred().resolve()
         .then(function(){
             stop();
-            return $.dEach(arry,10,function(k,v){
+            return $.deferredEach(arry,10,function(k,v){
                 sum+=v;
             });
         })
@@ -123,7 +132,7 @@
             }
             sum = 0;
             stop();
-            return $div.find(">*").dEach(10,function(){
+            return $div.find(">*").deferredEach(10,function(){
                 sum+=Number($(this).text());
             })
             .done(function(){
@@ -132,15 +141,16 @@
         })
         .done(function(){
             start();
-            ok(sum==10,"$.fn.dEachでも$.dEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。")
+            ok(sum==10,"$.fn.deferredEachでも$.deferredEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。")
         })
         .then(function(){
             stop();
-            var d= $.dEach(arry,100,function(k,v){
+            sum = 0;
+            var d= $.deferredEach(arry,10,function(k,v){
                 sum+=v;
             }),
                 clear = d.clear;
-            $.dTimeout(10)
+            $.deferredTimeout(10)
             .done(function(){
                 clear();
             });
@@ -148,44 +158,49 @@
         })
         .always(function(){
             start();
-        })
-        .done(function(){
-            ok(false,"dEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+            //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、ｄEachは1回だけ実施される
+            ok(sum == 1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
         })
         .fail(function(){
-            ok(true,"dEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+            ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
         })
         .then(undefined,function(){ return $.Deferred().resolve(); })
         .then(function(){
+            sum = 0;
             stop();
-            return $.dEach(arry,10,function(k,v){
-                if(2<k){
+            return $.deferredEach(arry,10,function(k,v){
+                sum+=v;
+                console.log(k+":"+v+":"+sum);
+                if(1<k){
                     return false;
                 }
             })
         })
-        .always(function(){ start(); })
-        .done(function(){
-            ok(false,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
-        })
-        .fail(function(){
-            ok(true,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
+        .always(function(){ 
+            start();
+            console.log(sum);
+            ok(sum == 6,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
         })
         .then(undefined,function(){ return $.Deferred().resolve(); })
         .then(function(){
             stop();
-            return $.dEach(arry,10,function(k,v){
-                if(2<k){
+            sum = 0;
+            return $.deferredEach(arry,10,function(k,v){
+                sum += v;
+                if(1<k){
                     return $.Deferred().reject().promise();
                 }
             })
         })
-        .always(function(){ start(); })
+        .always(function(){ 
+            start(); 
+            ok(sum == 6,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でループを抜ける事が出来る。")              
+        })
         .done(function(){
-            ok(false,"dEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+            ok(false,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
         })
         .fail(function(){
-            ok(true,"dEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+            ok(true,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
         });
     })
 })(jQuery,QUnit);

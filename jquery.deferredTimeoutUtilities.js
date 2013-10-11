@@ -8,17 +8,17 @@
      */
     /**
      * setInterval の Deferred 実装
-     * $.dInterval(time) の様に呼び出す。
+     * $.deferredInterval(time) の様に呼び出す。
      * 戻り値は Promise で、 関数として .clear() が追加されている。
      * .done - 未使用
      * .fail - 関数 .clear() を実行することにより呼ばれる
      * .progress - timeミリ秒ごとに呼ばれる
-     * $.dInterval(time) では コールバックのthis に null が入るのに対して
-     * $(sel).dInterval(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
+     * $.deferredInterval(time) では コールバックのthis に null が入るのに対して
+     * $(sel).deferredInterval(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
      * @param {!Number} [time] time秒毎に繰り返す時間 (ms)
      * @return {jQueryTimeDeferred} 
      */var _d_i=0
-    var dInterval = function (time) {
+    var deferredInterval = function (time) {
         var self = this,
             d = $.Deferred(),
             key = w.setInterval(function () {
@@ -33,17 +33,17 @@
     };
     /**
      * setTimeout の Deferred 実装
-     * $.dTimeout(time) の様に呼び出す。
+     * $.deferredTimeout(time) の様に呼び出す。
      * 戻り値は Promise で、 関数として .clear() が追加されている。
      * .done - timeミリ秒経過して余裕があれば呼ばれる（余裕が無ければ余裕があるタイミングで呼ばれる）
      * .fail - 関数 .clear() を実行することにより呼ばれる
      * .progress - 未使用
-     * $.dTimeout(time) では コールバックのthis に null が入るのに対して
-     * $(sel).dTimeout(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
+     * $.deferredTimeout(time) では コールバックのthis に null が入るのに対して
+     * $(sel).deferredTimeout(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
      * @param {Number} [time] time秒後に呼び出す予定の時間 (ms)
      * @return {jQueryTimeDeferred}
      */
-    var dTimeout = function (time) {
+    var deferredTimeout = function (time) {
         var self = this,
             d = $.Deferred(),
             key = w.setTimeout(function () {
@@ -58,18 +58,18 @@
     };
     
     /**
-     * setInterval による .dTimeout() 実装
-     * $.dIntervalTimeout(time) の様に呼び出す。
+     * setInterval による .deferredTimeout() 実装
+     * $.deferredIntervalTimeout(time) の様に呼び出す。
      * 戻り値は Promise で、 関数として .clear() が追加されている。
      * .done - timeミリ秒経過して余裕があれば呼ばれる（余裕が無ければ余裕があるタイミングで呼ばれる）
      * .fail - 関数 .clear() を実行することにより呼ばれる
      * .progress - 未使用
-     * $.dIntervalTimeout(time) では コールバックのthis に null が入るのに対して
-     * $(sel).dIntervalTimeout(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
+     * $.deferredIntervalTimeout(time) では コールバックのthis に null が入るのに対して
+     * $(sel).deferredIntervalTimeout(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
      * @param {Number} [time] time秒後に呼び出す予定の時間 (ms)
      * @return {jQueryTimeDeferred}
      */
-    var dIntervalTimeout = function (time) {
+    var deferredIntervalTimeout = function (time) {
         var self = this,
             d = $.Deferred(),
             key = w.setInterval(function () {
@@ -88,18 +88,18 @@
         return p;
     };
     /**
-     * setTimeout() による .dInterval() の実装。
-     * $.dTimeoutInterval() の様に呼び出す。
+     * setTimeout() による .deferredInterval() の実装。
+     * $.deferredTimeoutInterval() の様に呼び出す。
      * 戻り値は Promise で、 関数として .clear() が追加されている。
      * .done - 未使用
      * .fail - 関数 .clear() を実行することにより呼ばれる
      * .progress - timeミリ秒ごとに呼ばれる
-     * $.dTimeoutInterval(time) では コールバックのthis に null が入るのに対して
-     * $(sel).tInterval(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
+     * $.deferredTimeoutInterval(time) では コールバックのthis に null が入るのに対して
+     * $(sel).deferredTimeoutInterval(time) では コールバックの this に 選択設定した要素が入る。（画面上に存在しているかは非保証)
      * @param {!Number} [time] time秒毎に繰り返す時間 (ms)
      * @return {jQueryTimeDeferred} 
      */
-    var dTimeoutInterval = function (time) {
+    var deferredTimeoutInterval = function (time) {
         var self = this,
             d = $.Deferred(),
             func,
@@ -141,11 +141,11 @@
             w.clearTimeout
     })();
     /**
-     * requestAnimationFrame を利用した.dTimeout()を実行する。
+     * requestAnimationFrame を利用した.deferredTimeout()を実行する。
      * @param {Number} [time] 実行する最低タイミング(ms)
      * @return {jQueryTimeDeferred}
      */
-    var dFrameTimeout = function(time){
+    var deferredFrameTimeout = function(time){
         if(typeof time !== "number"){
             time = -1;
         }
@@ -169,11 +169,11 @@
     }
     
     /**
-     * requestAnimationFrame を利用した.dIntervalを実行する。
+     * requestAnimationFrame を利用した.deferredIntervalを実行する。
      * @param {Number} [time] 実行する最低間隔(ms)
      * @return {jQueryTimeDeferred}
      */
-    var dFrameInterval = function(time){
+    var deferredFrameInterval = function(time){
        if(typeof time !== "number"){
             time = -1;
         }
@@ -205,85 +205,85 @@
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dInterval = function (time) {
-        return dInterval.apply(null,arguments);
+    $.deferredInterval = function (time) {
+        return deferredInterval.apply(null,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dInterval = function (time) {
-        return dInterval.apply(this, arguments);
+    $.fn.deferredInterval = function (time) {
+        return deferredInterval.apply(this, arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dTimeoutInterval = function (time) {
-        return dTimeoutInterval.apply(null,arguments);
+    $.deferredTimeoutInterval = function (time) {
+        return deferredTimeoutInterval.apply(null,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dTimeoutInterval = function (time) {
-        return dTimeoutInterval.apply(this, arguments);
+    $.fn.deferredTimeoutInterval = function (time) {
+        return deferredTimeoutInterval.apply(this, arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dTimeout = function (time) {
-        return dTimeout.apply(null, arguments);
+    $.deferredTimeout = function (time) {
+        return deferredTimeout.apply(null, arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dTimeout = function (time) {
-        return dTimeout.apply(this,arguments);
+    $.fn.deferredTimeout = function (time) {
+        return deferredTimeout.apply(this,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dIntervalTimeout = function (time) {
-        return dIntervalTimeout.apply(null, arguments);
+    $.deferredIntervalTimeout = function (time) {
+        return deferredIntervalTimeout.apply(null, arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dIntervalTimeout = function (time) {
-        return dIntervalTimeout.apply(this,arguments);
+    $.fn.deferredIntervalTimeout = function (time) {
+        return deferredIntervalTimeout.apply(this,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dFrameTimeout = function(){
-        return dFrameTimeout.apply(null,arguments);
+    $.deferredFrameTimeout = function(){
+        return deferredFrameTimeout.apply(null,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dFrameTimeout = function(){
-        return dFrameTimeout.apply(this,arguments);
+    $.fn.deferredFrameTimeout = function(){
+        return deferredFrameTimeout.apply(this,arguments);
     };
         /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.dFrameInterval = function(){
-        return dFrameInterval.apply(null,arguments);
+    $.deferredFrameInterval = function(){
+        return deferredFrameInterval.apply(null,arguments);
     };
     /**
      * @param {Number} [time]
      * @return {jQueryTimeDeferred}
      */
-    $.fn.dFrameInterval = function(){
-        return dFrameInterval.apply(this,arguments);
+    $.fn.deferredFrameInterval = function(){
+        return deferredFrameInterval.apply(this,arguments);
     };
     /**
      * eachのDeferred実装
@@ -293,7 +293,7 @@
      * @param {tdf} [timeDeferredFunction] 時間を第一引数に取りDeferredにclearを持つ関数
      * @return {jQueryTimeDeferred}
      */
-    $.dEach = function(arry,time,fn,tdf){
+    $.deferredEach = function(arry,time,fn,tdf){
         arry = arry || [];
         if($.isFunction(time)){
             tdf = fn;
@@ -301,7 +301,7 @@
             time = undefined;
         }
         if(!tdf || !$.isFunction(tdf)){
-            tdf = $.dTimeout;
+            tdf = $.deferredTimeout;
         }
         if(!$.isFunction(fn)){
             return $.Deferred().resolve();
@@ -335,7 +335,7 @@
         p.clear = clear;
         return p;
     };
-    $.fn.dEach = function(time,fn,tdf){
-        return $.dEach(this,time,fn,tdf);
+    $.fn.deferredEach = function(time,fn,tdf){
+        return $.deferredEach(this,time,fn,tdf);
     }
 })(jQuery,window);
