@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Jquerydeferredtimeoututilities : this is jQueryDeferred utilities." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Jquerydeferredtimeoututilities</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/juner/jQueryDeferredTimeoutUtilities">View on GitHub</a>
+
+          <h1 id="project_title">Jquerydeferredtimeoututilities</h1>
+          <h2 id="project_tagline">this is jQueryDeferred utilities.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/juner/jQueryDeferredTimeoutUtilities/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/juner/jQueryDeferredTimeoutUtilities/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="jquery-deferredtimeoututilities-%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" class="anchor" href="#jquery-deferredtimeoututilities-%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"><span class="octicon octicon-link"></span></a>jQuery deferredTimeoutUtilities について</h1>
+
+<h2>
+<a name="%E6%A6%82%E8%A6%81" class="anchor" href="#%E6%A6%82%E8%A6%81"><span class="octicon octicon-link"></span></a>概要</h2>
+
+<p>setTimeout のjQuery.Deferred実装。setInterval等の時間関連関数を元としたjQuery.Deferred実装及びUtilityの jQuery plugin</p>
+
+<h2>
+<a name="%E7%94%A8%E6%B3%95" class="anchor" href="#%E7%94%A8%E6%B3%95"><span class="octicon octicon-link"></span></a>用法</h2>
+
+<pre><code>&lt;script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="./js/jquery.deferredTimeoutUtilities.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>で読み込んで実行してください。</p>
+
+<h2>
+<a name="%E9%96%A2%E6%95%B0%E4%BB%95%E6%A7%98" class="anchor" href="#%E9%96%A2%E6%95%B0%E4%BB%95%E6%A7%98"><span class="octicon octicon-link"></span></a>関数仕様</h2>
+
+<pre><code>$.dTimeout(time).done(function(){ /* action */});
+</code></pre>
+
+<p>の様にDeferredを返す為、Deferredチェーンを行って使用します。
+尚、各関数には $. 版と $.fn. 版の両方があり、$.fn. 版だとDeferred呼び出し時のthis がその要素自身になります。
+また、setTimeout、setIntervalを使用する都合上、clearTimeout、clearIntervalを行う為に戻り値のDeferredはclear()という関数を持ち、それを実行することで強制的にrejectされます。</p>
+
+<h3>
+<a name="dtimeouttime" class="anchor" href="#dtimeouttime"><span class="octicon octicon-link"></span></a>.dTimeout(time)</h3>
+
+<p>言わずもがなな setTimeout(callback,time) の Deferred 実装。time(ms)後にresolve,キャンセルされると reject する。</p>
+
+<h3>
+<a name="dintervaltime" class="anchor" href="#dintervaltime"><span class="octicon octicon-link"></span></a>.dInterval(time)</h3>
+
+<p>言わずもがなな setInterval(callback,time) の Deferred 実装。time(ms)経つとnofity,キャンセルされると rejectする。</p>
+
+<h3>
+<a name="dtimeoutintervaltime" class="anchor" href="#dtimeoutintervaltime"><span class="octicon octicon-link"></span></a>.dTimeoutInterval(time)</h3>
+
+<p>.dInterval(time) を setTimeout() を利用して実装した物。.dInterval() の様に時間に正確ではないが、無理の無い実行が利点。</p>
+
+<h3>
+<a name="dintervaltimeouttime" class="anchor" href="#dintervaltimeouttime"><span class="octicon octicon-link"></span></a>.dIntervalTimeout(time)</h3>
+
+<p>.dTimeout(time) を setInterval() を利用して実装した物。厳密なタイミングが設定出来るのはポイント。</p>
+
+<h3>
+<a name="dframetimeouttime" class="anchor" href="#dframetimeouttime"><span class="octicon octicon-link"></span></a>.dFrameTimeout(time)</h3>
+
+<p>requestAnimationFrame(callback) を利用して .dTimeout(time) を実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
+
+<h3>
+<a name="dframeintervaltime" class="anchor" href="#dframeintervaltime"><span class="octicon octicon-link"></span></a>.dFrameInterval(time)</h3>
+
+<p>requestAnimationFrame(callback) を利用して .dInterval(time) を実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
+
+<h3>
+<a name="deacharryfnkeyvalue" class="anchor" href="#deacharryfnkeyvalue"><span class="octicon octicon-link"></span></a>.dEach(arry,fn(key,value))</h3>
+
+<h3>
+<a name="deacharrytimefnkeyvalue" class="anchor" href="#deacharrytimefnkeyvalue"><span class="octicon octicon-link"></span></a>.dEach(arry,time,fn(key,value))</h3>
+
+<h3>
+<a name="deacharryfnkeyvaluetdftime" class="anchor" href="#deacharryfnkeyvaluetdftime"><span class="octicon octicon-link"></span></a>.dEach(arry,fn(key,value),tdf(time))</h3>
+
+<h3>
+<a name="deacharrytimefnkeyvaluetdftime" class="anchor" href="#deacharrytimefnkeyvaluetdftime"><span class="octicon octicon-link"></span></a>.dEach(arry,time,fn(key,value),tdf(time))</h3>
+
+<p>.eachをDeferred対応させた物。time(ms)毎にコールバック関数:fnを実行する。
+コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveｓれると続行する。
+また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dEach(1000,function(){/* action <em>/}).done(function(){/</em> ok action */}))
+コールバック関数:tdfを指定すると .dTimeout と同系統の機能を持つ関数であれtime(ms)の経過の為に使用する。</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Jquerydeferredtimeoututilities maintained by <a href="https://github.com/juner">juner</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
