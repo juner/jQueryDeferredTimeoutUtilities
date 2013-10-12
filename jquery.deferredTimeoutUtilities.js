@@ -286,7 +286,11 @@
         return deferredFrameInterval.apply(this,arguments);
     };
     /**
-     * eachのDeferred実装
+     * eachのDeferred実装 呼び出し方としては<br/>
+     * $.deferredEach(arry,fn);<br/>
+     * $.deferredEach(arry,time,fn(k,v));<br/>
+     * $.deferredEach(arry,time,fn(k,v),tdf)<br/>
+     * などが利用できる。
      * @param {Array|Object} arry 配列もしくは連想配列
      * @param {Number} [time] 時間。指定しない場合は時間にundefinedを指定したものと同じ状態になる
      * @param {Function} fn 第一引数に key,第二引数にvalueを持つ関数 戻り値にはboolean とDeferredを使用することが出来る
@@ -304,7 +308,7 @@
             tdf = $.deferredTimeout;
         }
         if(!$.isFunction(fn)){
-            return $.Deferred().resolve();
+            return $.Deferred().resolve().promise();
         }
         arry = $.map(arry,function(v,k){ return {v:v,k:k}; });
         var c = $.noop;
@@ -337,5 +341,33 @@
     };
     $.fn.deferredEach = function(time,fn,tdf){
         return $.deferredEach(this,time,fn,tdf);
+    };
+    $.deferredMap = function(arry,fn){
+        var clear = $.noop;
+        arry = arry || [];
+        if(!$.isFunction(fn)){
+            return $.Deferred().resolve().promise();
+        }
+        arry = $.map(arry,function(v,k){ return fn.apply(v,[v,k]);});
+        var p= $.Deferred(function(def){
+            //待ち解除用のclear関数を準備
+            clear = function(){ def.rejectWith(this,arguments); };
+            // whenで全取得
+            $.when.apply($,arry)
+            .done(function(){ def.resolveWith(this,arguments); })
+            .fail(function(){ def.rejectWith(this,arguments); });
+            return def.promise();
+        })
+        .then(function(){
+            return $.Deferred().resolveWith(null,[Array.prototype.concat.apply([],arguments)]);
+        });
+        p.clear = clear;
+        return p;
+    };
+    $.fn.deferredMap = function(fn){
+        return $.deferredMap(this,fn);
+    };
+    $.deferredGrep = function(){
+    
     }
 })(jQuery,window);

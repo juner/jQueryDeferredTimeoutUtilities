@@ -5,42 +5,44 @@
      */
     var deferredTimeoutInterfaceTest = function(fnName){
         $Q.test("deferredTimeoutインターフェースに於ける "+fnName+"のテスト",5,function(){
-           var $test=$([]);
-           ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
-           ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
-           stop();
-           $[fnName](10)
-           .done(function(){
-                start();
-                ok(true,"$."+fnName+" で遅延動作する");
+            ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
+            ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
+            stop();
+            $.Deferred().resolve()
+            .then(function(){
+                //テスト①：実行すると指定時間後にresolveする。
+                //（この際時間の正確さは求めない為、resolveするかの確認）
+                return $[fnName](10)
+                .done(function(){
+                    start();
+                    ok(true,"$."+fnName+" で遅延動作する");
+                })
             })
             .then(function(){
-                $test = $("<div/>").prependTo("body");
+                //テスト②：要素に付属される関数として実行すると、コールバック時に呼び元の要素がthisになる。
                 stop();
-                return $test[fnName](10);
-            })
-            .done(function(){
-                start();
-                ok($(this).is($test),fnName+" された際の要素は"+fnName+"した際の元の要素であること");
-                $test.remove();
-                $test = $([]);
+                var $test = $("<div/>").prependTo("body");
+                return $test[fnName](10)
+                .done(function(){
+                    start();
+                    ok($(this).is($test),fnName+" された際の要素は"+fnName+"した際の元の要素であること");
+                    $test.remove();
+                });
             })
             .then(function(){
-                var t = $[fnName](300);
+                //テスト③：戻り値のPromiseに付随したclear関数によるrejectの確認。
+                stop();
+                var waitTime = 300;
+                var clearTime = 10;
+                var t = $[fnName](waitTime);
+                var mes = fnName+"のPromiseにあるclearメソッドによりrejectが可能であること";
                 setTimeout(function(){
                     t.clear();
-                },10);
-                stop();
-                return t;
-            })
-            .always(function(){
-                start();
-            })
-            .done(function(){
-                ok(false,fnName+"のPromiseにあるclearメソッドによりrejectが可能であること");
-            })
-            .fail(function(){
-                ok(true,fnName+"のPromiseにあるclearメソッドによりrejectが可能であること");
+                },clearTime);
+                return t
+                .always(function(){ start(); })
+                .done(function(){ ok(false,mes); })
+                .fail(function(){ ok(true,mes); });
             });
         });
     };
@@ -170,7 +172,6 @@
             stop();
             return $.deferredEach(arry,10,function(k,v){
                 sum+=v;
-                console.log(k+":"+v+":"+sum);
                 if(1<k){
                     return false;
                 }
@@ -178,7 +179,6 @@
         })
         .always(function(){ 
             start();
-            console.log(sum);
             ok(sum == 6,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
         })
         .then(undefined,function(){ return $.Deferred().resolve(); })
@@ -202,5 +202,39 @@
         .fail(function(){
             ok(true,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
         });
-    })
+    });
+    $Q.test("deferredMap のテスト",function(){
+        ok($.isFunction($.deferredMap), "$.deferredMap は関数として定義されている" );
+        ok($.isFunction($.fn.deferredMap),"$.fn.deferredMap は関数として定義されている");
+        stop();
+        $.Deferred().resolve()
+        .then(function(){
+            var anc ="";
+            var array = (function(){
+                var a=[];
+                var start="A".charCodeAt();
+                for(var i=0,imax=15;i<imax;i++){
+                    a[i] = { time:((imax-i)*10) ,text:String.fromCharCode(start+i) };
+                    anc += a[i].text;
+                }
+                return a;
+            })();
+            console.log(anc);
+            var log
+            return $.deferredMap(array,function(v,k){
+                return $.deferredTimeout(v.time)
+                .then(function(){
+                    return $.Deferred().resolve(v.text);
+                });
+            })
+            .always(function(){ start(); })
+            .done(function(arry){
+                var argpattern = Array.prototype.join.call(arry,"");
+                ok(anc === argpattern,"配列毎に返す値に基づいた配列を返すタイミングに依らずに実行開始順に返している");
+                
+            });
+        }).then(function(){
+            
+        })
+    });
 })(jQuery,QUnit);
