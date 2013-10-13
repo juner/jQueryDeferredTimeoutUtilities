@@ -111,43 +111,49 @@
     //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
     deferredIntervalInterfaceTest("deferredFrameInterval");
     
-    $Q.test("deferredEach のテスト",function(){
+    $Q.test("deferredEach のテスト",8,function(){
         ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
         ok($.isFunction($.fn.deferredEach),"$.fn.deferredEach は関数として定義されている");
-        var sum = 0;
-        var arry = [1,2,3,4];
+        stop();
         $.Deferred().resolve()
         .then(function(){
-            stop();
+            var sum = 0;
+            var arry = [1,2,3,4];
             return $.deferredEach(arry,10,function(k,v){
                 sum+=v;
+            })
+            .done(function(){
+                start();
+                ok(sum==10,"対象配列を指定時間間隔でチェックする");
             });
         })
-        .done(function(){
-            start();
-            ok(sum==10,"対象配列を指定時間間隔でチェックする");
-        })
         .then(function(){
+            var sum = 0;
+            var arry = [1,2,3,4];
+            stop();
             var $div = $("<div/>").prependTo("body");
             for(var i =0,imax=arry.length;i<imax;i++){
                 $div.append($("<span/>").text(arry[i]));
             }
-            sum = 0;
-            stop();
             return $div.find(">*").deferredEach(10,function(){
                 sum+=Number($(this).text());
             })
+            .always(function(){ start(); })
             .done(function(){
+                console.log(sum,10);
+                console.log($div);
+                var _$div = $(this).parent();
+                console.log(_$div);
+                console.log(_$div.is($div));
+                ok(sum==10 && $(this).parent().is($div),"$.fn.deferredEachでも$.deferredEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。");
                 $div.remove();
-            });
-        })
-        .done(function(){
-            start();
-            ok(sum==10,"$.fn.deferredEachでも$.deferredEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。")
+                
+            })
         })
         .then(function(){
             stop();
-            sum = 0;
+            var sum = 0;
+            var arry = [1,2,3,4];
             var d= $.deferredEach(arry,10,function(k,v){
                 sum+=v;
             }),
@@ -155,20 +161,22 @@
             $.deferredTimeout(10)
             .done(function(){
                 clear();
+                
             });
-            return d;
+            return d
+            .always(function(){
+                start();
+                //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、ｄEachは1回だけ実施される
+                ok(sum == 1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+            })
+            .fail(function(){
+                ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
+            })
+            .then(undefined,function(){ return $.Deferred().resolve(); })
         })
-        .always(function(){
-            start();
-            //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、ｄEachは1回だけ実施される
-            ok(sum == 1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
-        })
-        .fail(function(){
-            ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
-        })
-        .then(undefined,function(){ return $.Deferred().resolve(); })
         .then(function(){
-            sum = 0;
+            var sum = 0;
+            var arry = [1,2,3,4];
             stop();
             return $.deferredEach(arry,10,function(k,v){
                 sum+=v;
@@ -176,31 +184,26 @@
                     return false;
                 }
             })
+            .always(function(){ 
+                start();
+                ok(sum == 6,"deferredEachのコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
+            })
+            .then(undefined,function(){ return $.Deferred().resolve(); });
         })
-        .always(function(){ 
-            start();
-            ok(sum == 6,"dEachはコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
-        })
-        .then(undefined,function(){ return $.Deferred().resolve(); })
         .then(function(){
             stop();
-            sum = 0;
+            var sum = 0;
+            var arry = [1,2,3,4];
             return $.deferredEach(arry,10,function(k,v){
                 sum += v;
                 if(1<k){
                     return $.Deferred().reject().promise();
                 }
             })
-        })
-        .always(function(){ 
-            start(); 
-            ok(sum == 6,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でループを抜ける事が出来る。")              
-        })
-        .done(function(){
-            ok(false,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
-        })
-        .fail(function(){
-            ok(true,"deferredEachはコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+            .always(function(){ start(); })
+            .fail(function(){
+                ok(sum == 6,"deferredEachのコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+            });
         });
     });
     $Q.test("deferredMap のテスト",function(){

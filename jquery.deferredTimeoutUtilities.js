@@ -298,6 +298,7 @@
      * @return {jQueryTimeDeferred}
      */
     $.deferredEach = function(arry,time,fn,tdf){
+        var self = this;
         arry = arry || [];
         if($.isFunction(time)){
             tdf = fn;
@@ -319,7 +320,7 @@
             var arg = arguments,
                 a = Array.prototype.shift.apply(arg);
             if(a === undefined){
-                return $.Deferred().resolve();
+                return $.Deferred().resolveWith(self);
             }
             var d = tdf(time);
             c = d.clear;
@@ -340,13 +341,14 @@
         return p;
     };
     $.fn.deferredEach = function(time,fn,tdf){
-        return $.deferredEach(this,time,fn,tdf);
+        return $.deferredEach.call(this,this,time,fn,tdf);
     };
     $.deferredMap = function(arry,fn){
+        var self = this;
         var clear = $.noop;
         arry = arry || [];
         if(!$.isFunction(fn)){
-            return $.Deferred().resolve().promise();
+            return $.Deferred().resolveWith(self,[[]]).promise();
         }
         arry = $.map(arry,function(v,k){ return fn.apply(v,[v,k]);});
         var p= $.Deferred(function(def){
@@ -359,15 +361,13 @@
             return def.promise();
         })
         .then(function(){
-            return $.Deferred().resolveWith(null,[Array.prototype.concat.apply([],arguments)]);
+            return $.Deferred()
+                .resolveWith(self,[Array.prototype.concat.apply([],arguments)]);
         });
         p.clear = clear;
         return p;
     };
     $.fn.deferredMap = function(fn){
-        return $.deferredMap(this,fn);
+        return $.deferredMap.call(this,this,fn);
     };
-    $.deferredGrep = function(){
-    
-    }
 })(jQuery,window);
