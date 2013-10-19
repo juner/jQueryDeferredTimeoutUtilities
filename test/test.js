@@ -119,12 +119,12 @@
         .then(function(){
             var sum = 0;
             var arry = [1,2,3,4];
-            return $.deferredEach(arry,10,function(k,v){
+            return $.deferredEach(arry,function(k,v){
                 sum+=v;
             })
             .done(function(){
                 start();
-                ok(sum==10,"対象配列を指定時間間隔でチェックする");
+                ok(sum==10,"対象配列を元に.eachの様に動作する");
             });
         })
         .then(function(){
@@ -135,7 +135,8 @@
             for(var i =0,imax=arry.length;i<imax;i++){
                 $div.append($("<span/>").text(arry[i]));
             }
-            return $div.find(">*").deferredEach(10,function(){
+            return $div.find(">*").deferredEach(function(){
+                console.log("fn call");
                 sum+=Number($(this).text());
             })
             .always(function(){ start(); })
@@ -154,8 +155,9 @@
             stop();
             var sum = 0;
             var arry = [1,2,3,4];
-            var d= $.deferredEach(arry,10,function(k,v){
+            var d= $.deferredEach(arry,function(k,v){
                 sum+=v;
+                return $.deferredTimeout(10);
             }),
                 clear = d.clear;
             $.deferredTimeout(10)
@@ -178,7 +180,7 @@
             var sum = 0;
             var arry = [1,2,3,4];
             stop();
-            return $.deferredEach(arry,10,function(k,v){
+            return $.deferredEach(arry,function(k,v){
                 sum+=v;
                 if(1<k){
                     return false;

@@ -297,51 +297,65 @@
      * @param {tdf} [timeDeferredFunction] 時間を第一引数に取りDeferredにclearを持つ関数
      * @return {jQueryTimeDeferred}
      */
-    $.deferredEach = function(arry,time,fn,tdf){
+    $.deferredEach = function(arry,fn){
         var self = this;
         arry = arry || [];
-        if($.isFunction(time)){
-            tdf = fn;
-            fn = time;
-            time = undefined;
-        }
-        if(!tdf || !$.isFunction(tdf)){
-            tdf = $.deferredTimeout;
-        }
         if(!$.isFunction(fn)){
-            return $.Deferred().resolve().promise();
+            return $.Deferred().resolveWith(self).promise();
         }
         arry = $.map(arry,function(v,k){ return {v:v,k:k}; });
         var c = $.noop;
+        var clearFlag = false;
         var clear = function(){
             c.apply();
         }
+        console.log("start");
+        var i=0;
         var p = (function loop(){
             var arg = arguments,
                 a = Array.prototype.shift.apply(arg);
             if(a === undefined){
                 return $.Deferred().resolveWith(self);
             }
-            var d = tdf(time);
-            c = d.clear;
-            return d.then(function(){
-                    var result,d=$.Deferred().resolve();
-                    if((result= fn.apply(a.v,[a.k,a.v])) === false){
-                        d = $.Deferred().reject();
-                    }else if(result && $.isFunction(result.promise)){
-                        d = result;
-                    }
-                    return d.then(function(){
-                        return loop.apply(null,arg);
+            var _i = i++;
+            console.log(a,_i+":[");
+            var d = $.Deferred();
+            c = function(){
+                console.log("clear");
+                clearFlag = true;
+                d.rejectWith(self);
+            };
+            $.Deferred().resolve()
+            .then(function(){
+                var result,d=$.Deferred().resolve();
+                if(!clearFlag && (result= fn.apply(a.v,[a.k,a.v])) === false){
+                    d = $.Deferred().reject();
+                }else if(result && $.isFunction(result.promise)){
+                    d = result;
+                }
+                if(!clearFlag){
+                    d = d.then(function(){
+                        return loop.apply(self,arg);
                     });
-                });
-        }).apply(null,arry)
-            .promise();
+                }
+                return d;
+            }).done(function(){
+                d.resolveWith(self);
+            }).fail(function(){
+                console.log("reject");
+                clearFlag = true;
+                d.rejectWith(self);
+            })
+            return d.promise().always(function(){console.log("]"+_i);});
+        }).apply(self,arry)
+            .promise();i
         p.clear = clear;
-        return p;
+        return p.always(function(){
+            console.log("ok.");
+        });
     };
     $.fn.deferredEach = function(time,fn,tdf){
-        return $.deferredEach.call(this,this,time,fn,tdf);
+        return $.deferredEach.call(this,this,fn);
     };
     $.deferredMap = function(arry,fn){
         var self = this;
