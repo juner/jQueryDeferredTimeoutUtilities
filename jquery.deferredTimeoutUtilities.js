@@ -309,7 +309,6 @@
         var clear = function(){
             c.apply();
         }
-        console.log("start");
         var i=0;
         var p = (function loop(){
             var arg = arguments,
@@ -318,10 +317,8 @@
                 return $.Deferred().resolveWith(self);
             }
             var _i = i++;
-            console.log(a,_i+":[");
             var d = $.Deferred();
             c = function(){
-                console.log("clear");
                 clearFlag = true;
                 d.rejectWith(self);
             };
@@ -342,17 +339,14 @@
             }).done(function(){
                 d.resolveWith(self);
             }).fail(function(){
-                console.log("reject");
                 clearFlag = true;
                 d.rejectWith(self);
             })
-            return d.promise().always(function(){console.log("]"+_i);});
+            return d.promise();
         }).apply(self,arry)
             .promise();i
         p.clear = clear;
-        return p.always(function(){
-            console.log("ok.");
-        });
+        return p;
     };
     $.fn.deferredEach = function(fn){
         return $.deferredEach.call(this,this,fn);
