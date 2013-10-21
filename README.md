@@ -6,7 +6,7 @@ setTimeout のjQuery.Deferred実装。setInterval等の時間関連関数を元�
     <script type="text/javascript" src="./js/jquery.deferredTimeoutUtilities.js"></script>
 で読み込んで実行してください。
 ##関数仕様
-    $.dTimeout(time).done(function(){ /* action */});
+    $.deferredTimeout(time).done(function(){ /* action */});
 の様にDeferredを返す為、Deferredチェーンを行って使用します。
 尚、各関数には $. 版と $.fn. 版の両方があり、$.fn. 版だとDeferred呼び出し時のthis がその要素自身になります。
 また、setTimeout、setIntervalを使用する都合上、clearTimeout、clearIntervalを行う為に戻り値のDeferredはclear()という関数を持ち、それを実行することで強制的にrejectされます。
