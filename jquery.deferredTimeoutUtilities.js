@@ -354,7 +354,7 @@
             console.log("ok.");
         });
     };
-    $.fn.deferredEach = function(time,fn,tdf){
+    $.fn.deferredEach = function(fn){
         return $.deferredEach.call(this,this,fn);
     };
     $.deferredMap = function(arry,fn){

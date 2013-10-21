@@ -130,23 +130,21 @@
         .then(function(){
             var sum = 0;
             var arry = [1,2,3,4];
+            var arry_sum = function (arry){ var sum = 0; for(var i=0,imax=arry.length;i<imax;i++){ sum += arry[i];  } return sum; }(arry);
             stop();
             var $div = $("<div/>").prependTo("body");
             for(var i =0,imax=arry.length;i<imax;i++){
                 $div.append($("<span/>").text(arry[i]));
             }
             return $div.find(">*").deferredEach(function(){
-                console.log("fn call");
                 sum+=Number($(this).text());
             })
             .always(function(){ start(); })
             .done(function(){
-                console.log(sum,10);
-                console.log($div);
+                //配列の値を要素から取得して加算した結果が合致する
+                ok(sum==arry_sum,"$.fn.deferredEachでも$.deferredEachと同様に実行が可能である。");
                 var _$div = $(this).parent();
-                console.log(_$div);
-                console.log(_$div.is($div));
-                ok(sum==10 && $(this).parent().is($div),"$.fn.deferredEachでも$.deferredEachと同様に実行が可能であり、$.fn.eachと同様に各要素がthisになること。");
+                ok($(this).parent().is($div),"$.fn.eachと同様に各要素がthisになること。");
                 $div.remove();
                 
             })
@@ -155,9 +153,11 @@
             stop();
             var sum = 0;
             var arry = [1,2,3,4];
+            
             var d= $.deferredEach(arry,function(k,v){
+                //10ms毎にarryの要素一つを
                 sum+=v;
-                return $.deferredTimeout(10);
+                return $.deferredTimeout(15);
             }),
                 clear = d.clear;
             $.deferredTimeout(10)
@@ -168,7 +168,7 @@
             return d
             .always(function(){
                 start();
-                //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、ｄEachは1回だけ実施される
+                //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、dEachは1回だけ実施される
                 ok(sum == 1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
             })
             .fail(function(){
