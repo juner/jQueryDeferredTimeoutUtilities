@@ -63,7 +63,7 @@
                     ok(true,"$."+fnName+" は戻り値のPromiseにあるclearメソッドのみを行う事でループから脱出出来る。");
                     d.resolve();
                 });
-                $.deferredTimeout(100)
+                $.deferredTimeout(200)
                 .done(function(){ clear(); d.resolve(); });
                 d.always(function(){
                     start();
@@ -224,7 +224,6 @@
                 }
                 return a;
             })();
-            var log
             return $.deferredMap(array,function(v,k){
                 return $.deferredTimeout(v.time)
                 .then(function(){
@@ -238,8 +237,98 @@
                 
             });
         }).then(function(){
-            
+            var anc ="";
+            var anti =["C","G","H"];
+            var array = (function(){
+                var a=[];
+                var start="A".charCodeAt();
+                for(var i=0,imax=15;i<imax;i++){
+                    a[i] = { time:((imax-i)*10) ,text:String.fromCharCode(start+i) };
+                    if($.inArray(a[i].text,anti) == -1){
+                        anc += a[i].text;
+                    }
+                }
+                return a;
+            })();
+            stop();
+            return $.deferredMap(array,function(v,k){
+                return $.deferredTimeout(v.time)
+                .then(function(){
+                    if($.inArray(v.text,anti) == -1){
+                        return $.Deferred().resolve(v.text);
+                    }else{
+                        return $.Deferred().resolve();
+                    }
+                });
+            })
+            .always(function(){ start(); })
+            .done(function(arry){
+                var argpattern = Array.prototype.join.call(arry,"");
+                ok(anc === argpattern,"resolve時に何も引数に持たせない場合は含まれない");
+            });
         })
+        .then(function(){
+            var anc ="";
+            var anti =["C","G","H"];
+            var array = (function(){
+                var a=[];
+                var start="A".charCodeAt();
+                for(var i=0,imax=15;i<imax;i++){
+                    a[i] = { time:((imax-i)*10) ,text:String.fromCharCode(start+i) };
+                }
+                return a;
+            })();
+            stop();
+            return $.deferredMap(array,function(v,k){
+                return $.deferredTimeout(v.time)
+                .then(function(){
+                    if($.inArray(v.text,anti) == -1){
+                        return $.Deferred().resolve(v.text);
+                    }else{
+                        return $.Deferred().reject(v.text);
+                    }
+                });
+            })
+            .always(function(){ start(); })
+            .fail(function(str){
+                ok($.inArray(str,anti),"rejectするとその引数状態で値を返す");
+            })
+            .then(undefined,function(){
+                return $.Deferred().resolve();
+            });
+        })
+        .then(function(){
+            var anc ="";
+            var anti =["C","G","H"];
+            var array = (function(){
+                var a=[];
+                var start="A".charCodeAt();
+                for(var i=0,imax=15;i<imax;i++){
+                    a[i] = { time:((imax-i)*10) ,text:String.fromCharCode(start+i) };
+                    anc += a[i].text;
+                    if(0<=$.inArray(a[i].text,anti)){
+                        anc+="X";
+                    }
+                }
+                return a;
+            })();
+            stop();
+            return $.deferredMap(array,function(v,k){
+                return $.deferredTimeout(v.time)
+                .then(function(){
+                    if(0<=$.inArray(v.text,anti)){
+                        return $.Deferred().resolve(v.text,"X");
+                    }else{
+                        return $.Deferred().resolve(v.text);
+                    }
+                });
+            })
+            .always(function(){ start(); })
+            .done(function(arry){
+                var argpattern = Array.prototype.join.call(arry,"");
+                ok(anc === argpattern,"resolve時返す引数が複数だと配列に追加される項目数がその引数分追加される");
+            });
+        });
     });
     
 })(jQuery,QUnit);

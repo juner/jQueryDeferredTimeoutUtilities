@@ -288,13 +288,9 @@
     /**
      * eachのDeferred実装 呼び出し方としては<br/>
      * $.deferredEach(arry,fn);<br/>
-     * $.deferredEach(arry,time,fn(k,v));<br/>
-     * $.deferredEach(arry,time,fn(k,v),tdf)<br/>
-     * などが利用できる。
+     * として利用できる。
      * @param {Array|Object} arry 配列もしくは連想配列
-     * @param {Number} [time] 時間。指定しない場合は時間にundefinedを指定したものと同じ状態になる
      * @param {Function} fn 第一引数に key,第二引数にvalueを持つ関数 戻り値にはboolean とDeferredを使用することが出来る
-     * @param {tdf} [timeDeferredFunction] 時間を第一引数に取りDeferredにclearを持つ関数
      * @return {jQueryTimeDeferred}
      */
     $.deferredEach = function(arry,fn){
@@ -348,9 +344,21 @@
         p.clear = clear;
         return p;
     };
+    /**
+     * @param {Function} fn
+     * @return {jQueryTimeDeferred}
+     */
     $.fn.deferredEach = function(fn){
         return $.deferredEach.call(this,this,fn);
     };
+    /**
+     * mapのDeferred実装 呼び出し方としては<br/>
+     * $.deferredMap(arry,fn);<br/>
+     * として利用できる。
+     * @param {Array|Object} arry 配列もしくは連想配列
+     * @param {Function} fn 第一引数に value,第二引数にkeyを持つ関数 戻り値には何等かの値 とDeferredを使用することが出来る。Deferredへの引数はその儘返す配列に変換される
+     * @return {jQueryTimeDeferred}
+     */
     $.deferredMap = function(arry,fn){
         var self = this;
         var clear = $.noop;
@@ -375,6 +383,10 @@
         p.clear = clear;
         return p;
     };
+    /**
+     * @param {Function} fn
+     * @return {jQueryTimeDeferred}
+     */
     $.fn.deferredMap = function(fn){
         return $.deferredMap.call(this,this,fn);
     };

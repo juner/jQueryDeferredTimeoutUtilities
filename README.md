@@ -26,8 +26,8 @@ setTimeout のjQuery.Deferred実装。setInterval等の時間関連関数を元�
 .deferredTimeout インターフェース を requestAnimationFrame(callback) を利用して実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。
 ###.deferredEach(arry,fn(key,value))
 .eachをDeferred対応させた物。
-コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveｓれると続行する。
+コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveされると続行する。
 また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dferredEach(function(k,v){/* action */}).done(function(){/* ok action */}))
 尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。
 ###.deferredMap(arry,fn(value,key))
-.mapをDeferred対応させた物。 指定の配列または連想配列を元に
+.mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がDeferred.Promise だった場合はそれのresolve時の引数を配列に追加する。
