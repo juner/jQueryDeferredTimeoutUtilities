@@ -224,7 +224,6 @@
                 }
                 return a;
             })();
-            console.log(anc);
             var log
             return $.deferredMap(array,function(v,k){
                 return $.deferredTimeout(v.time)
@@ -242,4 +241,5 @@
             
         })
     });
+    
 })(jQuery,QUnit);
