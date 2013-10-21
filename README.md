@@ -30,4 +30,5 @@ setTimeout のjQuery.Deferred実装。setInterval等の時間関連関数を元�
 また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dferredEach(function(k,v){/* action */}).done(function(){/* ok action */}))
 尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。
 ###.deferredMap(arry,fn(value,key))
-.mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がDeferred.Promise だった場合はそれのresolve時の引数を配列に追加する。
+.mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がDeferred.Promise だった場合はそれのresolve時の引数を配列に追加する。実際の引数に対しての動作に関しては $.when と同等であるが、完了時の引数は全ての戻り値を再配列化(もしも配列が返された時はその配列一つ一つを要素として全体の配列に追加する)して第一引数に設定したresolveを行う。
+尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。
