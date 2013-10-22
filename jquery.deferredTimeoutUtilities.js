@@ -366,7 +366,18 @@
         if(!$.isFunction(fn)){
             return $.Deferred().resolveWith(self,[[]]).promise();
         }
-        arry = $.map(arry,function(v,k){ return fn.apply(v,[v,k]);});
+        arry = $.map(arry,function(v,k){ 
+            var result = fn.apply(v,[v,k]);
+            if(result && $.isFunction(result.promise)){
+                result = result.then(function(){
+                    return $.Deferred()
+                        //resolve時に何も引数を指定しない場合、concat時に無視される様にする為に空の配列を引数を変更しておく
+                        .resolveWith(this,arguments.length == 0?[[]]:arguments)
+                        .promise();
+                });
+            }
+            return result;
+        });
         var p= $.Deferred(function(def){
             //待ち解除用のclear関数を準備
             clear = function(){ def.rejectWith(this,arguments); };

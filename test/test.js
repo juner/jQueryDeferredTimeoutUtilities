@@ -124,7 +124,7 @@
             })
             .done(function(){
                 start();
-                ok(sum==10,"対象配列を元に.eachの様に動作する");
+                equal(sum,10,"対象配列を元に.eachの様に動作する");
             });
         })
         .then(function(){
@@ -142,7 +142,7 @@
             .always(function(){ start(); })
             .done(function(){
                 //配列の値を要素から取得して加算した結果が合致する
-                ok(sum==arry_sum,"$.fn.deferredEachでも$.deferredEachと同様に実行が可能である。");
+                equal(sum,arry_sum,"$.fn.deferredEachでも$.deferredEachと同様に実行が可能である。");
                 var _$div = $(this).parent();
                 ok($(this).parent().is($div),"$.fn.eachと同様に各要素がthisになること。");
                 $div.remove();
@@ -169,7 +169,7 @@
             .always(function(){
                 start();
                 //10ms秒で1回目実行されあ後にdTimeout(10)がresolveになる為、dEachは1回だけ実施される
-                ok(sum == 1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
+                equal(sum,1,"deferredEachは戻り値のjQuery.Deferredにclearが拡張されており、それを実行することで外部から強制rejectが出来る。");
             })
             .fail(function(){
                 ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
@@ -188,7 +188,7 @@
             })
             .always(function(){ 
                 start();
-                ok(sum == 6,"deferredEachのコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
+                equal(sum,6,"deferredEachのコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
             })
             .then(undefined,function(){ return $.Deferred().resolve(); });
         })
@@ -204,7 +204,7 @@
             })
             .always(function(){ start(); })
             .fail(function(){
-                ok(sum == 6,"deferredEachのコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
+                deepEqual(sum,6,"deferredEachのコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
             });
         });
     });
@@ -233,7 +233,7 @@
             .always(function(){ start(); })
             .done(function(arry){
                 var argpattern = Array.prototype.join.call(arry,"");
-                ok(anc === argpattern,"配列毎に返す値に基づいた配列を返すタイミングに依らずに実行開始順に返している");
+                deepEqual(argpattern,anc,"配列毎に返す値に基づいた配列を返すタイミングに依らずに実行開始順に返している");
                 
             });
         }).then(function(){
@@ -264,7 +264,9 @@
             .always(function(){ start(); })
             .done(function(arry){
                 var argpattern = Array.prototype.join.call(arry,"");
-                ok(anc === argpattern,"resolve時に何も引数に持たせない場合は含まれない");
+                deepEqual(argpattern,anc,"resolve時に何も引数に持たせない場合は含まれない");
+                deepEqual(arry.length,anc.length,"resolve時に何も引数に持たせない場合は配列に追加されない為、その要素数の確認");
+                console.log(arry);
             });
         })
         .then(function(){
@@ -291,7 +293,7 @@
             })
             .always(function(){ start(); })
             .fail(function(str){
-                ok($.inArray(str,anti),"rejectするとその引数状態で値を返す");
+                ok($.inArray(str,anti),"rejectするとさその引数状態で値を返す");
             })
             .then(undefined,function(){
                 return $.Deferred().resolve();
@@ -326,7 +328,8 @@
             .always(function(){ start(); })
             .done(function(arry){
                 var argpattern = Array.prototype.join.call(arry,"");
-                ok(anc === argpattern,"resolve時返す引数が複数だと配列に追加される項目数がその引数分追加される");
+                deepEqual(anc,argpattern,"resolve時返す引数が複数だと配列に追加される項目数がその引数分追加される");
+                equal(anc.length,arry.length,"resolve時に返す引数の数が増えた場合の返す要素数の確認")
             });
         });
     });
