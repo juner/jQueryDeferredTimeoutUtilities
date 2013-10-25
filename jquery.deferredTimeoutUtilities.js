@@ -295,10 +295,6 @@
      */
     $.deferredEach = function(arry,fn){
         var self = this;
-        arry = arry || [];
-        if(!$.isFunction(fn)){
-            return $.Deferred().resolveWith(self).promise();
-        }
         arry = $.map(arry,function(v,k){ return {v:v,k:k}; });
         var c = $.noop;
         var clearFlag = false;
@@ -363,9 +359,6 @@
         var self = this;
         var clear = $.noop;
         arry = arry || [];
-        if(!$.isFunction(fn)){
-            return $.Deferred().resolveWith(self,[[]]).promise();
-        }
         arry = $.map(arry,function(v,k){ 
             var result = fn.apply(v,[v,k]);
             if(result && $.isFunction(result.promise)){
@@ -401,4 +394,55 @@
     $.fn.deferredMap = function(fn){
         return $.deferredMap.call(this,this,fn);
     };
+    
+    $.deferredGrep = function(arry,fn,inv){
+        var self = this;
+        var clear = $.noop;
+        inv = !!inv;
+        arry = arry || [];
+        if(!$.isFunction(fn)){
+            return $.Deferred().resolveWith(self,[[]]).promise();
+        }
+        var length = arry.length,
+            base = new Array(length),
+            whenArray = new Array(length);
+        for(var i=0;i<length;i++){
+            (function(v,n){
+                base[n] ={v:v,f:undefined};
+                var result = fn.apply(v,[v,n]);
+                if(result && $.isFunction(result.promise)){
+                    result = result.then(function(){
+                        base[n].f = true !== inv;
+                        return $.Deferred().resolveWith(this,arguments).promise();
+                    },function(){
+                        base[n].f = false !== inv;
+                        return $.Deferred().resolveWith(this,arguments).promise();
+                    })
+                }else{
+                    base[n].f = inv !== result;
+                }
+                whenArray[n] = result;
+            })(arry[i],i);
+        }
+        var p = $.Deferred(function(d){
+            console.log();
+            $.when.apply($,whenArray)
+            .done(function(){ d.resolveWith(this,arguments); })
+            .fail(function(){ d.rejectWith(this,arguments); })
+            .progress(function(){ d.notifyWith(this,arguments); })
+            return d.promise();
+        })
+        .then(function(){
+            var newArray = [];
+            for(var i=0,j=0,imax=base.length;i<imax;i++){
+                if(base[i].f)
+                    newArray[j++] = base[i].v;
+            }
+            return $
+                .Deferred()
+                .resolveWith(self,[newArray])
+                .promise();
+        });
+        return p;
+    }
 })(jQuery,window);

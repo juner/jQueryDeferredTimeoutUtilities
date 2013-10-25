@@ -111,7 +111,7 @@
     //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
     deferredIntervalInterfaceTest("deferredFrameInterval");
     
-    $Q.test("deferredEach のテスト",8,function(){
+    $Q.test("deferredEach のテスト",9,function(){
         ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
         ok($.isFunction($.fn.deferredEach),"$.fn.deferredEach は関数として定義されている");
         stop();
@@ -196,7 +196,7 @@
             stop();
             var sum = 0;
             var arry = [1,2,3,4];
-            return $.deferredEach(arry,10,function(k,v){
+            return $.deferredEach(arry,function(k,v){
                 sum += v;
                 if(1<k){
                     return $.Deferred().reject().promise();
@@ -333,5 +333,44 @@
             });
         });
     });
-    
+    $Q.test("deferredGrep のテスト",function(){
+        ok($.isFunction($.deferredGrep), "$.deferredGrep は関数として定義されている" );
+        $.Deferred().resolve()
+        .then(function(){
+            var arry = [1,2,3,4,5];
+            var anc = $.grep(arry,function(v,k){
+                return 3< v;
+            });
+            return $.deferredGrep(arry,function(v,k){
+                return 3 < v;
+            })
+            .done(function(arry){
+                var argpattern = Array.prototype.join.call(arry,"");
+                var ancpattern = Array.prototype.join.call(anc,"");
+                deepEqual(argpattern,ancpattern,"grepの様に動作する");
+            });
+        })
+        .then(function(){
+            var arry = [1,2,3,4,5];
+            var anc = $.grep(arry,function(v,k){
+                return 3< v;
+            });
+            stop();
+            return $.deferredGrep(arry,function(v,k){
+                var d = $.deferredTimeout(v*10);
+                if(!(3 < v)){
+                    d = d.then(function(){
+                        return $.Deferred().reject();
+                    });
+                }
+                return d;
+            })
+            .always(function(){ start(); })
+            .done(function(arry){
+                var argpattern = Array.prototype.join.call(arry,"");
+                var ancpattern = Array.prototype.join.call(anc,"");
+                deepEqual(argpattern,ancpattern,"戻り値にdeferredを渡すと resolveだとtrueを返した代わり、rejectだとfalseを返した代わりとして機能する。");
+            });
+        })
+    });
 })(jQuery,QUnit);
