@@ -51,7 +51,7 @@
 <h2>
 <a name="%E9%96%A2%E6%95%B0%E4%BB%95%E6%A7%98" class="anchor" href="#%E9%96%A2%E6%95%B0%E4%BB%95%E6%A7%98"><span class="octicon octicon-link"></span></a>関数仕様</h2>
 
-<pre><code>$.dTimeout(time).done(function(){ /* action */});
+<pre><code>$.deferredTimeout(time).done(function(){ /* action */});
 </code></pre>
 
 <p>の様にDeferredを返す為、Deferredチェーンを行って使用します。
@@ -59,51 +59,50 @@
 また、setTimeout、setIntervalを使用する都合上、clearTimeout、clearIntervalを行う為に戻り値のDeferredはclear()という関数を持ち、それを実行することで強制的にrejectされます。</p>
 
 <h3>
-<a name="dtimeouttime" class="anchor" href="#dtimeouttime"><span class="octicon octicon-link"></span></a>.dTimeout(time)</h3>
+<a name="deferredtimeouttime" class="anchor" href="#deferredtimeouttime"><span class="octicon octicon-link"></span></a>.deferredTimeout(time)</h3>
 
-<p>言わずもがなな setTimeout(callback,time) の Deferred 実装。time(ms)後にresolve,キャンセルされると reject する。</p>
-
-<h3>
-<a name="dintervaltime" class="anchor" href="#dintervaltime"><span class="octicon octicon-link"></span></a>.dInterval(time)</h3>
-
-<p>言わずもがなな setInterval(callback,time) の Deferred 実装。time(ms)経つとnofity,キャンセルされると rejectする。</p>
+<p>言わずもがなな setTimeout(callback,time) の Deferred 実装。time(ms)後にresolve,キャンセルされると reject する。
+これをインターフェースとして別実装が幾つか用意されている</p>
 
 <h3>
-<a name="dtimeoutintervaltime" class="anchor" href="#dtimeoutintervaltime"><span class="octicon octicon-link"></span></a>.dTimeoutInterval(time)</h3>
+<a name="deferredintervaltimeouttime" class="anchor" href="#deferredintervaltimeouttime"><span class="octicon octicon-link"></span></a>.deferredIntervalTimeout(time)</h3>
 
-<p>.dInterval(time) を setTimeout() を利用して実装した物。.dInterval() の様に時間に正確ではないが、無理の無い実行が利点。</p>
-
-<h3>
-<a name="dintervaltimeouttime" class="anchor" href="#dintervaltimeouttime"><span class="octicon octicon-link"></span></a>.dIntervalTimeout(time)</h3>
-
-<p>.dTimeout(time) を setInterval() を利用して実装した物。厳密なタイミングが設定出来るのはポイント。</p>
+<p>.deferredTimeout インターフェース を setInterval() を利用して実装した物。厳密なタイミングが設定出来るのはポイント。</p>
 
 <h3>
-<a name="dframetimeouttime" class="anchor" href="#dframetimeouttime"><span class="octicon octicon-link"></span></a>.dFrameTimeout(time)</h3>
+<a name="deferredframetimeouttime" class="anchor" href="#deferredframetimeouttime"><span class="octicon octicon-link"></span></a>.deferredFrameTimeout(time)</h3>
 
-<p>requestAnimationFrame(callback) を利用して .dTimeout(time) を実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
-
-<h3>
-<a name="dframeintervaltime" class="anchor" href="#dframeintervaltime"><span class="octicon octicon-link"></span></a>.dFrameInterval(time)</h3>
-
-<p>requestAnimationFrame(callback) を利用して .dInterval(time) を実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
+<p>.deferredTimeout インターフェース を requestAnimationFrame(callback) を利用してを実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
 
 <h3>
-<a name="deacharryfnkeyvalue" class="anchor" href="#deacharryfnkeyvalue"><span class="octicon octicon-link"></span></a>.dEach(arry,fn(key,value))</h3>
+<a name="deferredintervaltime" class="anchor" href="#deferredintervaltime"><span class="octicon octicon-link"></span></a>.deferredInterval(time)</h3>
+
+<p>言わずもがなな setInterval(callback,time) の Deferred 実装。time(ms)経つとnofity,キャンセルされると rejectする。
+これをインターフェースとして別実装が幾つか用意されている</p>
 
 <h3>
-<a name="deacharrytimefnkeyvalue" class="anchor" href="#deacharrytimefnkeyvalue"><span class="octicon octicon-link"></span></a>.dEach(arry,time,fn(key,value))</h3>
+<a name="deferredtimeoutintervaltime" class="anchor" href="#deferredtimeoutintervaltime"><span class="octicon octicon-link"></span></a>.deferredTimeoutInterval(time)</h3>
+
+<p>.deferredInterval インターフェース を setTimeout() を利用して実装した物。.deferredInterval() の様に時間に正確ではないが、無理の無い実行が利点。</p>
 
 <h3>
-<a name="deacharryfnkeyvaluetdftime" class="anchor" href="#deacharryfnkeyvaluetdftime"><span class="octicon octicon-link"></span></a>.dEach(arry,fn(key,value),tdf(time))</h3>
+<a name="deferredframeintervaltime" class="anchor" href="#deferredframeintervaltime"><span class="octicon octicon-link"></span></a>.deferredFrameInterval(time)</h3>
+
+<p>.deferredTimeout インターフェース を requestAnimationFrame(callback) を利用して実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。</p>
 
 <h3>
-<a name="deacharrytimefnkeyvaluetdftime" class="anchor" href="#deacharrytimefnkeyvaluetdftime"><span class="octicon octicon-link"></span></a>.dEach(arry,time,fn(key,value),tdf(time))</h3>
+<a name="deferredeacharryfnkeyvalue" class="anchor" href="#deferredeacharryfnkeyvalue"><span class="octicon octicon-link"></span></a>.deferredEach(arry,fn(key,value))</h3>
 
-<p>.eachをDeferred対応させた物。time(ms)毎にコールバック関数:fnを実行する。
-コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveｓれると続行する。
-また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dEach(1000,function(){/* action <em>/}).done(function(){/</em> ok action */}))
-コールバック関数:tdfを指定すると .dTimeout と同系統の機能を持つ関数であれtime(ms)の経過の為に使用する。</p>
+<p>.eachをDeferred対応させた物。
+コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveされると続行する。
+また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dferredEach(function(k,v){/* action <em>/}).done(function(){/</em> ok action */}))
+尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。</p>
+
+<h3>
+<a name="deferredmaparryfnvaluekey" class="anchor" href="#deferredmaparryfnvaluekey"><span class="octicon octicon-link"></span></a>.deferredMap(arry,fn(value,key))</h3>
+
+<p>.mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がDeferred.Promise だった場合はそれのresolve時の引数を配列に追加する。実際の引数に対しての動作に関しては $.when と同等であるが、完了時の引数は全ての戻り値を再配列化(もしも配列が返された時はその配列一つ一つを要素として全体の配列に追加する)して第一引数に設定したresolveを行う。
+尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。</p>
       </section>
     </div>
 
