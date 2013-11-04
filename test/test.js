@@ -47,7 +47,7 @@
         });
     };
     
-    var deferredIntervalInterfaceTest = function(fnName){
+    var deferredIntervalInterfaceTest = function(fnName,deferredTimeoutFunction){
             $Q.test("deferredIntervalインターフェースに於ける "+fnName+" のテスト",5,function(){
             ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
             ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
@@ -63,7 +63,7 @@
                     ok(true,"$."+fnName+" は戻り値のPromiseにあるclearメソッドのみを行う事でループから脱出出来る。");
                     d.resolve();
                 });
-                $.deferredTimeout(200)
+                deferredTimeoutFunction(100)
                 .done(function(){ clear(); d.resolve(); });
                 d.always(function(){
                     start();
@@ -97,10 +97,10 @@
     deferredTimeoutInterfaceTest("deferredTimeout");
     
     //deferredIntervalインターフェースを元にした deferredInterval のテスト
-    deferredIntervalInterfaceTest("deferredInterval");
+    deferredIntervalInterfaceTest("deferredInterval",$.deferredIntervalTimeout);
     
     //deferredIntervalインターフェースを元にした deferredTimeoutInterval のテスト
-    deferredIntervalInterfaceTest("deferredTimeoutInterval");
+    deferredIntervalInterfaceTest("deferredTimeoutInterval",$.deferredTimeout);
     
     //deferredTimeoutインターフェースを元にした deferredIntervalTimeout のテスト
     deferredTimeoutInterfaceTest("deferredIntervalTimeout");
@@ -109,7 +109,7 @@
     deferredTimeoutInterfaceTest("deferredFrameTimeout");
     
     //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
-    deferredIntervalInterfaceTest("deferredFrameInterval");
+    deferredIntervalInterfaceTest("deferredFrameInterval",$.deferredFrameTimeout);
     
     $Q.test("deferredEach のテスト",9,function(){
         ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
@@ -211,9 +211,26 @@
     $Q.test("deferredMap のテスト",function(){
         ok($.isFunction($.deferredMap), "$.deferredMap は関数として定義されている" );
         ok($.isFunction($.fn.deferredMap),"$.fn.deferredMap は関数として定義されている");
-        stop();
         $.Deferred().resolve()
         .then(function(){
+            var array = (function(){
+                var a=[];
+                var start="A".charCodeAt();
+                for(var i=0,imax=15;i<imax;i++){
+                    a[i] = { time:((imax-i)*10) ,text:String.fromCharCode(start+i) };
+                }
+                return a;
+            })();
+            var anc =$.map(array,function(v,k){
+                return v.text;
+            });
+            return $.deferredMap(array,function(v,k){
+                return v.text
+            })
+            .done(function(arry){
+                deepEqual(arry,anc,"deferredMapは$.mapの様に動作する。");
+            });
+        }).then(function(){
             var anc ="";
             var array = (function(){
                 var a=[];
@@ -224,6 +241,7 @@
                 }
                 return a;
             })();
+            stop();
             return $.deferredMap(array,function(v,k){
                 return $.deferredTimeout(v.time)
                 .then(function(){
@@ -234,7 +252,6 @@
             .done(function(arry){
                 var argpattern = Array.prototype.join.call(arry,"");
                 deepEqual(argpattern,anc,"配列毎に返す値に基づいた配列を返すタイミングに依らずに実行開始順に返している");
-                
             });
         }).then(function(){
             var anc ="";
@@ -266,7 +283,6 @@
                 var argpattern = Array.prototype.join.call(arry,"");
                 deepEqual(argpattern,anc,"resolve時に何も引数に持たせない場合は含まれない");
                 deepEqual(arry.length,anc.length,"resolve時に何も引数に持たせない場合は配列に追加されない為、その要素数の確認");
-                console.log(arry);
             });
         })
         .then(function(){
