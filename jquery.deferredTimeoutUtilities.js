@@ -27,7 +27,7 @@
             p = d.promise();
         p.clear = function () {
             w.clearInterval(key);
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
         };
         return p;
     };
@@ -52,7 +52,7 @@
             p = d.promise();
         p.clear = function () {
             w.clearTimeout(key);
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
         };
         return p;
     };
@@ -82,7 +82,7 @@
             p = d.promise();
         p.clear = function () {
             w.clearInterval(key);
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
             key = null;
         };
         return p;
@@ -112,7 +112,7 @@
             p = d.promise();
         p.clear = function () {
             w.clearTimeout(key);
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
             key = null;
         };
         return p;
@@ -163,7 +163,7 @@
             p = d.promise();
         p.clear = function () {
             w.cancelAnimationFrame(key);
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
         };
         return p;
     }
@@ -197,7 +197,7 @@
         p.clear = function () {
             w.cancelAnimationFrame(key);
             key = null;
-            d.rejectWith(self);
+            d.rejectWith(self,arguments);
         };
         return p;
     }
@@ -299,7 +299,7 @@
         var c = $.noop;
         var clearFlag = false;
         var clear = function(){
-            c.apply();
+            c.apply(null,arguments);
         }
         var i=0;
         var p = (function loop(){
@@ -312,7 +312,7 @@
             var d = $.Deferred();
             c = function(){
                 clearFlag = true;
-                d.rejectWith(self);
+                d.rejectWith(self,arguments);
             };
             $.Deferred().resolve()
             .then(function(){
@@ -425,11 +425,11 @@
             })(arry[i],i);
         }
         var p = $.Deferred(function(d){
-            console.log();
             $.when.apply($,whenArray)
             .done(function(){ d.resolveWith(this,arguments); })
             .fail(function(){ d.rejectWith(this,arguments); })
             .progress(function(){ d.notifyWith(this,arguments); })
+            clear = function(){ d.rejectWith(self,arguments); };
             return d.promise();
         })
         .then(function(){
@@ -443,6 +443,7 @@
                 .resolveWith(self,[newArray])
                 .promise();
         });
+        p.clear = clear;
         return p;
     }
 })(jQuery,window);

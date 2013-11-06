@@ -4,7 +4,7 @@
      * $.deferredTimeout インターフェースについての評価
      */
     var deferredTimeoutInterfaceTest = function(fnName){
-        $Q.test("deferredTimeoutインターフェースに於ける "+fnName+"のテスト",5,function(){
+        $Q.test("deferredTimeoutインターフェースに於ける "+fnName+"のテスト",6,function(){
             ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
             ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
             stop();
@@ -37,18 +37,25 @@
                 var t = $[fnName](waitTime);
                 var mes = fnName+"のPromiseにあるclearメソッドによりrejectが可能であること";
                 setTimeout(function(){
-                    t.clear();
+                    t.clear(1,2,3,4,5);
                 },clearTime);
                 return t
                 .always(function(){ start(); })
                 .done(function(){ ok(false,mes); })
-                .fail(function(){ ok(true,mes); });
-            });
+                .fail(function(){ ok(true,mes); })
+                .fail(function(){
+                    //引数を配列にして比較用
+                    var a = Array.prototype.slice.call(arguments);
+                    //再現した配列
+                    var anc = [1,2,3,4,5];
+                    deepEqual(a,anc,"clear 時の引数がfail時に渡されていること")
+                })
+            })
         });
     };
     
     var deferredIntervalInterfaceTest = function(fnName,deferredTimeoutFunction){
-            $Q.test("deferredIntervalインターフェースに於ける "+fnName+" のテスト",5,function(){
+            $Q.test("deferredIntervalインターフェースに於ける "+fnName+" のテスト",6,function(){
             ok($.isFunction($[fnName]), "$."+fnName+" は関数として定義されている" );
             ok($.isFunction($.fn[fnName]),"$.fn."+fnName+" は関数として定義されている");
             stop();
@@ -57,18 +64,23 @@
                     clear = c.clear,
                     i = 0;
                 c.progress(function(){
-                    if(3<++i) clear();
+                    if(3<++i) clear(1,2,3,4,5);
                 })
                 .fail(function(){
                     ok(true,"$."+fnName+" は戻り値のPromiseにあるclearメソッドのみを行う事でループから脱出出来る。");
-                    d.resolve();
-                });
+                    d.resolveWith(null,arguments);
+                })
+                .fail(function(){
+                    var a = Array.prototype.slice.call(arguments);
+                    var anc = [1,2,3,4,5];
+                    deepEqual(a,anc,"clear時の引数がfailに渡されている事。");
+                })
                 deferredTimeoutFunction(100)
                 .done(function(){ clear(); d.resolve(); });
                 d.always(function(){
                     start();
                     ok(3<i,"$."+fnName+" は指定時間毎にnotifyする。");
-                })
+                });
                 return d.promise();
             })
             .then(function(){
@@ -111,7 +123,7 @@
     //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
     deferredIntervalInterfaceTest("deferredFrameInterval",$.deferredFrameTimeout);
     
-    $Q.test("deferredEach のテスト",9,function(){
+    $Q.test("deferredEach のテスト",10,function(){
         ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
         ok($.isFunction($.fn.deferredEach),"$.fn.deferredEach は関数として定義されている");
         stop();
@@ -162,7 +174,7 @@
                 clear = d.clear;
             $.deferredTimeout(10)
             .done(function(){
-                clear();
+                clear(1,2,3,4,5);
                 
             });
             return d
@@ -173,6 +185,11 @@
             })
             .fail(function(){
                 ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
+            })
+            .fail(function(){
+                var a = Array.prototype.slice.call(arguments);
+                var anc = [1,2,3,4,5];
+                deepEqual(a,anc,"clear時にfailの引数がちゃんと渡されていること");
             })
             .then(undefined,function(){ return $.Deferred().resolve(); })
         })
@@ -208,7 +225,7 @@
             });
         });
     });
-    $Q.test("deferredMap のテスト",function(){
+    $Q.test("deferredMap のテスト",10,function(){
         ok($.isFunction($.deferredMap), "$.deferredMap は関数として定義されている" );
         ok($.isFunction($.fn.deferredMap),"$.fn.deferredMap は関数として定義されている");
         $.Deferred().resolve()
@@ -309,7 +326,7 @@
             })
             .always(function(){ start(); })
             .fail(function(str){
-                ok($.inArray(str,anti),"rejectするとさその引数状態で値を返す");
+                ok($.inArray(str,anti),"rejectするとその引数状態で値を返す");
             })
             .then(undefined,function(){
                 return $.Deferred().resolve();
@@ -347,6 +364,28 @@
                 deepEqual(anc,argpattern,"resolve時返す引数が複数だと配列に追加される項目数がその引数分追加される");
                 equal(anc.length,arry.length,"resolve時に返す引数の数が増えた場合の返す要素数の確認")
             });
+        })
+        .then(function(){
+            var array = [100,200,300,400,500];
+            var d = $.deferredMap(array,function(v,k){
+                return $.deferredTimeout(v).then(function(){
+                    return $.Deferred().resolve(v);
+                })
+            });
+            $.deferredTimeout(100).done(function(){
+                d.clear(1,2,3,4,5);
+            });
+            stop();
+            return d
+            .always(function(){ start(); })
+            .fail(function(){
+                var a = Array.prototype.slice.call(arguments);
+                var anc = [1,2,3,4,5];
+                deepEqual(a,anc,"clear時の引数がfail時に渡されていること");
+            })
+            .then(undefined,function(){
+                return $.Deferred().resolve();
+            })
         });
     });
     $Q.test("deferredGrep のテスト",function(){
@@ -386,6 +425,27 @@
                 var argpattern = Array.prototype.join.call(arry,"");
                 var ancpattern = Array.prototype.join.call(anc,"");
                 deepEqual(argpattern,ancpattern,"戻り値にdeferredを渡すと resolveだとtrueを返した代わり、rejectだとfalseを返した代わりとして機能する。");
+            });
+        })
+        .then(function(){
+            var array = [100,200,300,400,500];
+            stop();
+            var d = $.deferredGrep(array,function(v,k){
+                return $.deferredTimeout(v);
+            });
+            $.deferredTimeout(100)
+            .done(function(){
+                d.clear(1,2,3,4,5);
+            });
+            return d
+            .always(function(){ start(); })
+            .fail(function(){
+                var a = Array.prototype.slice.call(arguments);
+                var anc = [1,2,3,4,5];
+                deepEqual(a,anc,"clear時の引数がfailに渡されていること");
+            })
+            .then(undefined,function(){
+                return $.Deferred().resolve();
             });
         })
     });
