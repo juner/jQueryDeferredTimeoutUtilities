@@ -5,30 +5,44 @@ setTimeout のjQuery.Deferred実装。setInterval等の時間関連関数を元�
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="./js/jquery.deferredTimeoutUtilities.js"></script>
 で読み込んで実行してください。
+##基本仕様
+このプラグインの関数は全てjQuery.Deferred.Promiseオブジェクトを戻り値として持つ関数となります。
+この戻り値はclear関数を追加されており、実行することで強制的にrejectを行う事が出来ます。(尚、clearに渡した引数はその儘fail等で使用することが出来ます）
+##インターフェース
+このプラグインには幾つも関数が用意されていますが、2種類のインターフェースに沿った関数群が多くを占めます。
+###deferred timeout interface
+第一引数に時間を指定して実行する。指定した時間に関連した時間後にresolveするjQuery.Deferred.Promiseオブジェクトを返す。
+###deferred interval interface
+第一引数に時間を指定して実行する。指定した時間に関連した時間後にnotifyするjQuery.Deferred.Promiseオブジェクトを返す。
+この関数はresolveになることが無く、clearによるrejectのみが停止手段となります。
 ##関数仕様
     $.deferredTimeout(time).done(function(){ /* action */});
 の様にDeferredを返す為、Deferredチェーンを行って使用します。
 尚、各関数には $. 版と $.fn. 版の両方があり、$.fn. 版だとDeferred呼び出し時のthis がその要素自身になります。
-また、setTimeout、setIntervalを使用する都合上、clearTimeout、clearIntervalを行う為に戻り値のDeferredはclear()という関数を持ち、それを実行することで強制的にrejectされます。
 ###.deferredTimeout(time)
-言わずもがなな setTimeout(callback,time) の Deferred 実装。time(ms)後にresolve,キャンセルされると reject する。
-これをインターフェースとして別実装が幾つか用意されている
+setTimeout(callback,time) による deferred timeout interface の実装。指定する時間はmsを単位とする。
+setTimeoutによる実装な為処理が溜まっていると遅延する動作となる。
 ###.deferredIntervalTimeout(time)
-.deferredTimeout インターフェース を setInterval() を利用して実装した物。厳密なタイミングが設定出来るのはポイント。
+setInterval(callback,time) による deferred timeout interface の実装。指定する時間はmsを単位とする。
+setIntervalによる実装な為、厳密に指定時間に実行しようとするところは重要である。
 ###.deferredFrameTimeout(time)
-.deferredTimeout インターフェース を requestAnimationFrame(callback) を利用してを実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。
+requestAnimationFrame(callback) による deferred timeout interface の実装。指定する時間はmsを単位とする。
+フレーム単位で呼ばれ、指定の時間後の最初に呼ばれた際にresolveになる為、次のフレーム描画で動作を行いたい場合は有用である。
 ###.deferredInterval(time)
-言わずもがなな setInterval(callback,time) の Deferred 実装。time(ms)経つとnofity,キャンセルされると rejectする。
-これをインターフェースとして別実装が幾つか用意されている
+setInterval(callback,time) による deferred interval interface の実装。指定する時間はmsを単位とする。
+setIntervalによる実装な為、厳密に指定時間間隔でnotifyが欲しい場合には有用である。
 ###.deferredTimeoutInterval(time)
-.deferredInterval インターフェース を setTimeout() を利用して実装した物。.deferredInterval() の様に時間に正確ではないが、無理の無い実行が利点。
+setTimeout(callback,time) による deferred interval interface の実装。指定する時間はmsを単位とする。
+setTimeoutによる実装な為、処理が溜まると後に後に遅れる。
 ###.deferredFrameInterval(time)
-.deferredTimeout インターフェース を requestAnimationFrame(callback) を利用して実装した物。フレーム更新間隔に合わせて呼ばれる為、画面更新の際に使える。
+requestAnimationFrame(callback) による deferred interval interface の実装。指定する時間はmsを単位とする。
+フレーム単位で呼ばれ、指定の時間後の最初に呼ばれるとnotifyする為、フレーム間隔で呼びたい場合に有用である。
 ###.deferredEach(arry,fn(key,value))
 .eachをDeferred対応させた物。
 コールバック関数の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、rejecされるとキャンセルされ、resolveされると続行する。
 また、jQueryの要素から呼ばれる場合は第一引数を不要とする。(※例: $(elms).dferredEach(function(k,v){/* action */}).done(function(){/* ok action */}))
-尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。
 ###.deferredMap(arry,fn(value,key))
 .mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がDeferred.Promise だった場合はそれのresolve時の引数を配列に追加する。実際の引数に対しての動作に関しては $.when と同等であるが、完了時の引数は全ての戻り値を再配列化(もしも配列が返された時はその配列一つ一つを要素として全体の配列に追加する)して第一引数に設定したresolveを行う。
-尚、戻り値のjQuery.Deferred.Promiseオブジェクトには clear関数が設定されており、それを実行することでも強制的にrejectしてループを終わらせることが出来る。
+###.deferredGrep(arry,fn(value,key),inv)
+.grepをDeferred対応させた物。コールバック関数の戻り値として、指定なしと真偽値、jQuery.Deferred.Promiseオブジェクトを使用することが出来る。.grepだとfnの戻り値によってarryの取り込む値を指定するが、jQuery.Deferred.Promiseオブジェクトを指定した場合はそのresolveをtrueの代わりとし、rejectをfalseの代わりにとして使用することが出来る。勿論本来の.grepと同様に第三引数のinvに真を指定することでその指定は逆となる。
+また、jQuery.grep と同様に jQuery.fn.deferredGrepは用意されていない。
