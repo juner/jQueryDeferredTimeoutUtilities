@@ -2,8 +2,9 @@ jQuery deferredTimeoutUtilities について
 ======
 #概要
 このユーティリティは以下の2つの目的の為に実装されています。
-・JavaScriptで利用されるタイマ系関数のコールバック関数をjQuery.Deferredで外出しにすることで使いやすくした関数群（6種）
-・jQueryに於けるUtility関数の戻り値とコールバック関数の戻り値にjQuery.Deferredを対応させた関数群（3種）
++ JavaScriptで利用されるタイマ系関数のコールバック関数をjQuery.Deferredで外出しにすることで使いやすくした関数群（6種）
++ jQueryに於けるUtility関数の戻り値とコールバック関数の戻り値にjQuery.Deferredを対応させた関数群（3種）
+
 ※jQuery.Deferred は jQuery 1.5以降に追加された非同期処理を扱いやすくする為の仕組みです。
 #対応jQueryバージョン
 jQuery 1.8 以上
