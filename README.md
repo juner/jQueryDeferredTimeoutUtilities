@@ -70,6 +70,7 @@ jQueryに用意されている関数をDeferred対応させた物。これも例
 
 コールバック関数 fn の戻り値としてはfalseかjQuery.Deferred.Promiseオブジェクトを使用する事が出来る。falseを使用した場合は即時途中キャンセルとされ、rejectされる。fnの戻り値としてjQuery.Deferred.Promiseオブジェクトを使用した場合、次の要素をfnにより実行する迄の間を遅延させることが出来る。尚、jQuery.Deferred.Promiseをrejectされるとキャンセルされ、resolveされると続行する。配列を処理しつつDeferredで一繋ぎに処理することが出来る為、順次処理の必要がある場合の利用が見込まれる。
 
+
 また、jQueryの要素から呼ばれる場合は第一引数を不要とする。
 
 ※例:
@@ -77,7 +78,8 @@ jQueryに用意されている関数をDeferred対応させた物。これも例
     $(elms).dferredEach(function(k,v){/* action */})
     .done(function(){/* ok action */}))
 ##.deferredMap(arry,fn(value,key))
-.mapをDeferred対応させた物。 コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。戻り値がある場合はその戻り値を配列に追加する。戻り値がjQuery.Deferred.Promise だった場合はそれのresolve時の引数を配列に追加する。実際の引数に対しての動作に関しては $.when と同等であるが、完了時の引数は全ての戻り値を再配列化(もしも配列が返された時はその配列一つ一つを要素として全体の配列に追加する)して第一引数に設定したresolveを行う。
+.mapをDeferred対応させた物。コールバック関数の戻り値として、指定なしと値、jQuery.Deferred.Promiseオブジェクトを使用する事が出来る。
+戻り値がある場合はその戻り値を配列に追加する。戻り値がjQuery.Deferred.Promise だった場合はそれのresolve時の引数を配列に追加する。実際の引数に対しての動作に関しては $.when と同等であるが、完了時の引数は全ての戻り値を再配列化(もしも配列が返された時はその配列一つ一つを要素として全体の配列に追加する)して第一引数に設定したresolveを行う。
 ##.deferredGrep(arry,fn(value,key),inv)
 .grepをDeferred対応させた物。コールバック関数の戻り値として、指定なしと真偽値、jQuery.Deferred.Promiseオブジェクトを使用することが出来る。.grepだとfnの戻り値によってarryの取り込む値を指定するが、jQuery.Deferred.Promiseオブジェクトを指定した場合はそのresolveをtrueの代わりとし、rejectをfalseの代わりにとして使用することが出来る。勿論本来の.grepと同様に第三引数のinvに真を指定することでその指定は逆となる。
 Ajaxなどで利用して失敗した物のみを別途処理する時や成功した物のみを別途処理する時の利用が見込まれる。

@@ -123,12 +123,13 @@
     //deferredIntervalインターフェースを元にした deferredFrameInterval のテスト
     deferredIntervalInterfaceTest("deferredFrameInterval",$.deferredFrameTimeout);
     
-    $Q.test("deferredEach のテスト",10,function(){
+    $Q.test("deferredEach のテスト",11,function(){
         ok($.isFunction($.deferredEach), "$.deferredEach は関数として定義されている" );
         ok($.isFunction($.fn.deferredEach),"$.fn.deferredEach は関数として定義されている");
         stop();
         $.Deferred().resolve()
         .then(function(){
+            //テスト①：$.deferredEach が $.each と戻り値が違うだけで同様の動作をすることを確認。
             var sum = 0;
             var arry = [1,2,3,4];
             return $.deferredEach(arry,function(k,v){
@@ -140,6 +141,7 @@
             });
         })
         .then(function(){
+            //テスト②：$.fn.deferredEach が $.fn.each と戻り値が違うだけで同様の動作をすることを確認。
             var sum = 0;
             var arry = [1,2,3,4];
             var arry_sum = function (arry){ var sum = 0; for(var i=0,imax=arry.length;i<imax;i++){ sum += arry[i];  } return sum; }(arry);
@@ -162,20 +164,19 @@
             })
         })
         .then(function(){
+            //テスト③：$.deferredEach の戻り値のclear関数の動作確認
             stop();
             var sum = 0;
             var arry = [1,2,3,4];
-            
             var d= $.deferredEach(arry,function(k,v){
-                //10ms毎にarryの要素一つを
-                sum+=v;
-                return $.deferredTimeout(15);
-            }),
+                    //10ms毎にarryの要素一つを
+                    sum+=v;
+                    return $.deferredTimeout(15);
+                }),
                 clear = d.clear;
             $.deferredTimeout(10)
             .done(function(){
                 clear(1,2,3,4,5);
-                
             });
             return d
             .always(function(){
@@ -186,11 +187,13 @@
             .fail(function(){
                 ok(true,"clearが実行された場合、通常の様に正常完了のresolveではなく、中断の意味合いを持たせるのでrejectされる。");
             })
+            .done(function(){ ok(false,"clearが有効"); })
             .fail(function(){
                 var a = Array.prototype.slice.call(arguments);
                 var anc = [1,2,3,4,5];
                 deepEqual(a,anc,"clear時にfailの引数がちゃんと渡されていること");
             })
+            .done(function(){ ok(false,"clearの引数のチェック"); })
             .then(undefined,function(){ return $.Deferred().resolve(); })
         })
         .then(function(){
@@ -203,8 +206,10 @@
                     return false;
                 }
             })
-            .always(function(){ 
-                start();
+            .always(function(){ start(); })
+            .fail(function(){ ok(true,"deferredEachのコールバック内でfalseを返す事でrejectされる"); })
+            .done(function(){ ok(false,"deferredEachのコールバック内でfalseを返す事でrejectされる");  })
+            .always(function(){
                 equal(sum,6,"deferredEachのコールバック内でfalseを返す事でrejectしてループを抜ける事が出来る。");
             })
             .then(undefined,function(){ return $.Deferred().resolve(); });
@@ -222,8 +227,9 @@
             .always(function(){ start(); })
             .fail(function(){
                 deepEqual(sum,6,"deferredEachのコールバック内でDeferredを返し、それをrejectする事でrejectしてループを抜ける事が出来る。");
-            });
-        });
+            })
+            .done(function(){ ok(false,"戻り値のDeferredのrejectが効く"); })
+        }).then(undefined,function(){ return $.Deferred().resolve();});
     });
     $Q.test("deferredMap のテスト",10,function(){
         ok($.isFunction($.deferredMap), "$.deferredMap は関数として定義されている" );
@@ -328,6 +334,7 @@
             .fail(function(str){
                 ok($.inArray(str,anti),"rejectするとその引数状態で値を返す");
             })
+            .done(function(){ ok(false,"rejectが有効である。");  })
             .then(undefined,function(){
                 return $.Deferred().resolve();
             });
@@ -383,6 +390,7 @@
                 var anc = [1,2,3,4,5];
                 deepEqual(a,anc,"clear時の引数がfail時に渡されていること");
             })
+            .done(function(){ ok(false,"clearが失敗"); })
             .then(undefined,function(){
                 return $.Deferred().resolve();
             })

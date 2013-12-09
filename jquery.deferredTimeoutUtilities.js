@@ -297,46 +297,65 @@
         var self = this;
         arry = $.map(arry,function(v,k){ return {v:v,k:k}; });
         var c = $.noop;
-        var clearFlag = false;
         var clear = function(){
             c.apply(null,arguments);
         }
-        var i=0;
-        var p = (function loop(){
-            var arg = arguments,
-                a = Array.prototype.shift.apply(arg);
-            if(a === undefined){
-                return $.Deferred().resolveWith(self);
-            }
-            var _i = i++;
-            var d = $.Deferred();
+        var p = $.Deferred().resolve()
+        .then(function(){
+            var d1 = $.Deferred();
+            var clearFlag = false;
+            //clear用
             c = function(){
+                d1.rejectWith(self,arguments);
+            }
+            d1.always(function(){
                 clearFlag = true;
-                d.rejectWith(self,arguments);
-            };
-            $.Deferred().resolve()
-            .then(function(){
-                var result,d=$.Deferred().resolve();
-                if(!clearFlag && (result= fn.apply(a.v,[a.k,a.v])) === false){
-                    d = $.Deferred().reject();
-                }else if(result && $.isFunction(result.promise)){
-                    d = result;
-                }
-                if(!clearFlag){
-                    d = d.then(function(){
-                        return loop.apply(self,arg);
-                    });
-                }
-                return d;
-            }).done(function(){
-                d.resolveWith(self);
-            }).fail(function(){
-                clearFlag = true;
-                d.rejectWith(self);
             })
-            return d.promise();
-        }).apply(self,arry)
-            .promise();i
+            var result;
+            //reject、clear時
+            d1.fail(function(){
+                if(result && $.isFunction(result.promise)){
+                    if($.isFunction(result.abort)){
+                        result.abort();
+                    }else if($.isFunction(result.clear)){
+                        result.clear.apply(self,arguments);
+                    }
+                }
+            });
+            (function loop(){
+                var arg = arguments,
+                    a = Array.prototype.shift.apply(arg);
+                if(a === undefined){
+                    return $.Deferred().resolveWith(self);
+                }
+                return $.Deferred().resolve()
+                .then(function(){
+                    var d2 = $.Deferred();
+                    if(!clearFlag && (result= fn.apply(a.v,[a.k,a.v])) === false){
+                        //result が 真偽値の偽の時
+                        d2.reject();
+                    }else if(d2.resolve() && result && $.isFunction(result.promise)){
+                       //result が Promise であるとき
+                        d2 = d2.then(function(){
+                            return result;
+                        });
+                    }
+                    if(!clearFlag){
+                        d2 = d2.then(function(){
+                            return loop.apply(self,arg);
+                        });
+                    }
+                    return d2;
+                }).promise();
+            }).apply(self,arry)
+            .done(function(){
+                d1.resolveWith(self,arguments);
+            })
+            .fail(function(){
+                d1.rejectWith(self,arguments);
+            });
+            return d1.promise();
+        }).promise();
         p.clear = clear;
         return p;
     };
